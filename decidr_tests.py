@@ -39,62 +39,6 @@ class DecidrTestCase(unittest.TestCase):
 
     """ ***********************************************************************
         *
-        * /create_project unit tests
-        *
-        ***********************************************************************
-    """
-    def test_create_project_no_project_provided(self):
-
-        # Basic request with no arguments
-        rv = self.app.post('/create_project', data=dict())
-        response = json.loads(rv.data)
-
-        assert True == response["error"]
-        assert response["message"]
-
-
-    def test_create_project_empty_project_provided(self):
-
-        # Basic request with no arguments
-        rv = self.app.post('/create_project', data=dict(
-            project=""))
-        response = json.loads(rv.data)
-
-        assert True == response["error"]
-        assert response["message"]
-
-
-    def test_create_project_invalid_project_provided(self):
-
-        # Basic request with no arguments
-        rv = self.app.post('/create_project', data=dict(
-            project="this_isn't_json!"))
-        response = json.loads(rv.data)
-
-        assert True == response["error"]
-        assert response["message"]
-
-
-    def test_create_project(self):
-
-        # Basic request with no arguments
-        rv = self.app.post('/create_project', data=dict(
-            project='{\
-                "name": "Project Name",\
-                "desc" : "unit_test",\
-                "x_axis_label": "Effort",\
-                "y_axis_label": "Value",\
-                "curr_rev": 1,\
-                "items": []}'
-        ), follow_redirects=True)
-        response = json.loads(rv.data)
-
-        assert False == response["error"]
-        assert response["id"]
-        assert response["project"]
-
-    """ ***********************************************************************
-        *
         * /get_project unit tests
         *
         ***********************************************************************
@@ -141,6 +85,105 @@ class DecidrTestCase(unittest.TestCase):
         assert response["project"]["name"] == "Project Name"
         assert response["project"]["desc"] == "unit_test_prereq"
 
+
+    """ ***********************************************************************
+        *
+        * /save_project unit tests
+        *
+        ***********************************************************************
+    """
+    def test_save_project_no_project_provided(self):
+
+        # Basic request with no arguments
+        rv = self.app.post('/save_project', data=dict())
+        response = json.loads(rv.data)
+
+        assert True == response["error"]
+        assert response["message"]
+
+
+    def test_save_project_empty_project_provided(self):
+
+        # Basic request with no arguments
+        rv = self.app.post('/save_project', data=dict(
+            project=""))
+        response = json.loads(rv.data)
+
+        assert True == response["error"]
+        assert response["message"]
+
+
+    def test_save_new_project(self):
+
+        # Basic request with no arguments
+        rv = self.app.post('/save_project', data=dict(
+            project='{\
+                "name": "Project Name",\
+                "desc" : "unit_test",\
+                "x_axis_label": "Effort",\
+                "y_axis_label": "Value",\
+                "curr_rev": 1,\
+                "items": []}'
+        ), follow_redirects=True)
+        response = json.loads(rv.data)
+
+        assert False == response["error"]
+        assert response["id"]
+        assert response["project"]
+        assert response["project"]["name"] == "Project Name"
+        assert response["project"]["desc"] == "unit_test"
+        assert response["project"]["x_axis_label"] == "Effort"
+        assert response["project"]["y_axis_label"] == "Value"
+        assert response["project"]["curr_rev"] == 1
+
+
+    def test_save_existing_project(self):
+
+        # Basic request with no arguments
+        rv = self.app.post('/save_project', data=dict(
+            project='{\
+                "name": "Project Name A",\
+                "desc" : "unit_test",\
+                "x_axis_label": "a",\
+                "y_axis_label": "a",\
+                "curr_rev": 1,\
+                "items": []}'
+        ), follow_redirects=True)
+        response = json.loads(rv.data)
+
+        assert False == response["error"]
+        assert response["id"]
+        assert response["project"]
+        assert response["project"]["name"] == "Project Name A"
+        assert response["project"]["desc"] == "unit_test"
+        assert response["project"]["x_axis_label"] == "a"
+        assert response["project"]["y_axis_label"] == "a"
+        assert response["project"]["curr_rev"] == 1
+
+        print type(response["project"])
+        
+        # Update the project, then send to server to save
+        updated_project = response["project"]
+        updated_project["name"] = "Project Name B"
+        updated_project["desc"] = "unit_test"
+        updated_project["x_axis_label"] = "b"
+        updated_project["y_axis_label"] = "b"
+        updated_project["curr_rev"] = 2
+
+        rv = self.app.post('/save_project', data=dict(
+            project=updated_project
+        ), follow_redirects=True)
+        response = json.loads(rv.data)
+
+        assert False == response["error"]
+        assert response["id"]
+        assert response["project"]
+        assert response["project"]["name"] == "Project Name B"
+        assert response["project"]["desc"] == "unit_test"
+        assert response["project"]["x_axis_label"] == "b"
+        assert response["project"]["y_axis_label"] == "b"
+        assert response["project"]["curr_rev"] == 2
+        
 
 if __name__ == '__main__':
     unittest.main()

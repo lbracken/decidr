@@ -27,25 +27,6 @@ def init_db():
     db_projects = mongo.get_projects_collection()
 
 
-def create_project(project):
-    """ Creates a new project from the given data and persists it into 
-        the database.
-
-        TODO: Need to validate the project data passed in...
-    """
-    # Set a project id
-    project["_id"] = generate_project_id()
-
-    now = int(datetime.now().strftime("%s"))
-    project["date_created"] = now
-    project["date_modified"] = now
-
-    db_projects.save(project, w=1)
-
-    # Return the project from the get_project() function for consistency
-    return get_project(project["_id"])
-
-
 def get_project(id):
     """ Returns project with the given id, or None if no project is
         found.
@@ -56,8 +37,28 @@ def get_project(id):
     return project
 
 
-def update_project(project):
-    return None
+def save_project(project):
+    """ Save the given project in the database.  This can be used to
+        both create a new project and update an existing one.
+
+        TODO: Need to validate the project data passed in...
+    """
+    # Two different approaches here...
+    #  (1) Just blindly update what was given into the DB
+    #  (2) Ensure the given project exists, and copy fields...
+    # For now, to start working on the WebUI, just going with (1).
+
+    now = get_current_timestamp()
+
+    # If the project doesn't have an id, then set one
+    if not hasattr(project, "_id"):
+        project["_id"] = generate_project_id()
+        project["date_created"] = now
+
+    project["date_modified"] = now
+
+    db_projects.save(project, w=1)
+    return project
 
 
 def generate_project_id():
@@ -76,6 +77,10 @@ def generate_project_id():
             prj_id = None
 
     return prj_id
+
+
+def get_current_timestamp():
+    return int(datetime.now().strftime("%s"))
 
 
 # Initialize connection to DB when loading module

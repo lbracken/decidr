@@ -33,36 +33,6 @@ def main_page():
     return render_template("index.html")
 
 
-@app.route("/create_project", methods=['POST'])
-def create_project():
-
-    # Get the client provided project
-    project = get_project_from_req(request)
-    response_body = {}
-
-    if project:
-        project = project_service.create_project(project)
-
-        if project:
-            populate_response_with_project(response_body, project)
-            
-        else:
-            response_body["error"] = True
-            response_body["message"] = "Error creating the project"
-
-        if verbose:
-            now = str(datetime.now())
-            print ">> %s  createProject[%s]" % (now, id)          
-    
-    else:
-        response_body["error"] = True
-        response_body["message"] = "No project provided"
-
-    # Create the response object
-    response = make_response(jsonify(response_body))
-    return response
-
-
 @app.route("/get_project")
 def get_project():
 
@@ -95,8 +65,34 @@ def get_project():
     return response
 
 
-def update_project():
-    return None
+@app.route("/save_project", methods=['POST'])
+def save_project():
+
+    # Get the client provided project
+    project = get_project_from_req(request)
+    response_body = {}
+
+    if project:
+        project = project_service.save_project(project)
+
+        if project:
+            populate_response_with_project(response_body, project)
+            
+        else:
+            response_body["error"] = True
+            response_body["message"] = "Error saving the project"
+
+        if verbose:
+            now = str(datetime.now())
+            print ">> %s  saveProject[%s]" % (now, id)          
+    
+    else:
+        response_body["error"] = True
+        response_body["message"] = "No project provided to save"
+
+    # Create the response object
+    response = make_response(jsonify(response_body))
+    return response
 
 
 def get_project_id_from_req(request):
