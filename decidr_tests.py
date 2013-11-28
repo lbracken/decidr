@@ -160,18 +160,15 @@ class DecidrTestCase(unittest.TestCase):
         assert response["project"]["y_axis_label"] == "a"
         assert response["project"]["curr_rev"] == 1
 
-        print type(response["project"])
-        
         # Update the project, then send to server to save
-        updated_project = response["project"]
-        updated_project["name"] = "Project Name B"
-        updated_project["desc"] = "unit_test"
-        updated_project["x_axis_label"] = "b"
-        updated_project["y_axis_label"] = "b"
-        updated_project["curr_rev"] = 2
+        response["project"]["name"] = "Project Name B"
+        response["project"]["desc"] = "unit_test"
+        response["project"]["x_axis_label"] = "b"
+        response["project"]["y_axis_label"] = "b"
+        response["project"]["curr_rev"] = 2
 
         rv = self.app.post('/save_project', data=dict(
-            project=updated_project
+            project=json.dumps(response["project"])
         ), follow_redirects=True)
         response = json.loads(rv.data)
 
