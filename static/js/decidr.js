@@ -2,12 +2,24 @@
    :license: MIT, see LICENSE for more details.
 */
 
+var currProject = null;
+
 
 // ****************************************************************************
 // *                                                                          *
 // *  Project Logic                                                           *
 // *                                                                          *
 // ****************************************************************************
+
+function getProject(projectId) {
+
+	if (!projectId) {
+		alert('Unable to get project -- no project id provided');
+		return;
+	}
+
+	$.getJSON("get_project", {id:projectId}, loadProject);
+}
 
 function createProject() {
 
@@ -32,11 +44,24 @@ function createProject() {
 	$.post("save_project", {project : JSON.stringify(project)}, onProjectCreated);
 }
 
-function onProjectCreated() {
+function onProjectCreated(response) {
 	hideCreateProjectDialog();
 	showServerCommunicationSuccess();
+	loadProject(response);
+}
 
-	// TODO: render the project...
+function loadProject(response) {
+
+	currProject = response.project;
+	if (!currProject) {
+		alert('Unable to load project -- no project provided');
+		return;
+	}
+
+	window.location.hash = "#prj=" + currProject._id;
+	$("#prjTitle").text(currProject.name);
+	$("#prjDesc").text(currProject.desc);
+	$("#prjCtrlBar").fadeIn();
 }
 
 // ****************************************************************************
@@ -62,7 +87,6 @@ function showServerCommunicationFailure() {
 	$("#updateInProgress").hide();
 	$("#updateFailure").fadeIn();
 }
-
 
 // ****************************************************************************
 // *                                                                          *
@@ -118,6 +142,19 @@ function hideCreateProjectDialog() {
 // *                                                                          *
 // ****************************************************************************
 
+// http://stackoverflow.com/questions/2090551/parse-query-string-in-javascript
+function getParameterByName(name) {
+    var query = window.location.hash.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == name) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+    return "";
+}
+
 $(document).ready(function() {
 
 	// Setup base UI
@@ -125,4 +162,14 @@ $(document).ready(function() {
 
 	// Setup dialogs
 	setupCreateProjectDialog();
+
+
+	// See if a project id is provided in the URL. If so then open that
+	// project, otherwise show the createProject dialog.
+	var projectId = getParameterByName("prj");
+	if (projectId) {
+		getProject(projectId);
+	} else {
+		showCreateProjectDialog();
+	}
 });
