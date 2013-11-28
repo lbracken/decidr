@@ -1,0 +1,207 @@
+/* decidr : https://github.com/lbracken/decidr
+   :license: MIT, see LICENSE for more details.
+*/
+* {
+  margin: 0px;
+}
+
+html, body {
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+  background-color: #f5f5fb;
+}
+
+html {
+  font-family: Tahoma, Trebuchet MS, Helvetica, Arial;
+  font-size: .8em;
+}
+
+body {}
+
+h1 {
+  padding-bottom: .25em;
+  font-size: 2.2em;
+}
+
+A:link    {color: #76A0C9; text-decoration: none;}
+A:visited {color: #76A0C9; text-decoration: none;}
+A:hover   {color: #76A0C9; text-decoration: underline;}
+A:active  {color: #76A0C9; outline: none;}
+A:focus   {-moz-outline-style: none;}
+
+img {border: none;}
+.clearPanel {clear: both;}
+
+.title {
+	font-weight: bold;
+	color: #293134;
+}
+
+.desc {
+	font-style: italic;
+	color: #444;
+}
+
+#header {
+	padding: .25em 1em .25em 1em;
+	margin-bottom: 1em;
+	border-bottom: 4px solid #678c9d;
+
+	background-color: #293134;
+	color: #e8e2b7;
+	font-weight: bold;
+}
+
+#decidrLogo {
+	float: left;
+}
+
+#topLevelCtrlBar {
+	float: right;
+	display: inline;
+}
+
+#topLevelCtrlBar A:link, A:visited, A:hover, A:active {
+	color: #e8e2b7 !important;
+}
+
+#prjHeader hr {
+	margin: 0em 1em 0em 1em;
+}
+
+#prjInfo {
+	float: left;
+	padding-left: 1em;
+}
+
+#prjIcon {
+	float: left;
+	margin-right: .5em;
+}
+
+#prjInfo .title {
+	float: left;
+	font-size: 2em;
+}
+
+#prjInfo .desc {
+	float: left;
+}
+
+#prjCtrlBar {
+	padding-right: 1em;
+}
+
+#prjCtrlBar * {
+	display: inline;
+	float: right;
+}
+
+#prjCtrlBar a {
+	padding: .3em;
+	font-size: 1.2em;
+}
+
+#updateIndicatorContainer {
+	height: 1.25em;
+	margin: 0em 1em .5em 0em;
+	font-size: 1em;
+	font-style: italic;
+	color: #444;
+}
+
+#updateInProgress {
+	float: right;
+}
+
+#updateSuccess {
+	float: right;
+}
+
+#updateFailure {
+	float: right;
+	color: #FF0000;
+	font-weight: bold;
+}
+
+#updateIndicatorContainer {
+	height: 1.25em;
+	margin: 0em 1em .5em 0em;
+	font-size: 1em;
+	font-style: italic;
+	color: #444;
+}
+
+#updateSuccess {
+	float: right;
+}
+
+#updateFailure {
+	float: right;
+	color: #FF0000;
+	font-weight: bold;
+}
+
+#updateInProgress {
+	float: right;
+}
+
+#content {
+	position: relative;
+	height: 550px;
+	margin: 0em 1em 1em 1em;
+}
+
+#gridContainer {	
+	display: none;
+	height: 100%;
+	border: 1px solid #777;
+	border-radius: 0px 0px 7px 0px;
+	box-shadow: 4px 4px 4px #CCC;	
+	background-color: #FFF;
+}
+
+#grid svg {}
+
+#infoDock {
+	display: none;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 300px;
+	height: 100%;
+	border: 1px solid #777;
+	border-radius: 0px 0px 7px 0px;
+	box-shadow: 4px 4px 4px #CCC;
+	background-color: #CCC;
+}
+
+#itemInfo {
+	margin: .5em;
+}
+
+#itemInfo .title {
+	font-size: 1.5em;
+}
+
+#itemInfo textarea {
+	width: 95%;
+	height: 10em;	
+	margin-top: .75em;
+	resize: vertical;
+}
+
+#infoDockToggleBtn {
+	display: none;
+	position: absolute;
+	right: 5px; 
+	bottom: 5px;
+	padding: .1em .5em .1em .5em;
+}
+
+#footer {
+	width: 600px;
+	margin: auto;
+	text-align: center;
+}
