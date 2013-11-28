@@ -10,7 +10,7 @@
       <div id="header">
         <div id="decidrLogo">decidr</div>
         <div id="topLevelCtrlBar">
-          <a href="javascript:void(0)" id="showCreateProjectBtn">New Project</a>
+          <a href="javascript:void(0)" id="createProject-show">New Project</a>
         </div>
         <div class="clearPanel"></div>
       </div>
@@ -34,7 +34,7 @@
     <div id="updateIndicatorContainer">
       <div id="updateSuccess" style="display: none;">All changes saved</div>
       <div id="updateFailure" style="display: none;">Error updating project!</div>
-      <div id="updateInProgress" style="display: none;"><img src="images/updating.gif" width="16px" height="11px"> Saving Changes...</div>
+      <div id="updateInProgress" style="display: none;"><img src="static/images/updating.gif" width="16px" height="11px"> Saving Changes...</div>
       <div class="clearPanel"></div>
     </div>
 
@@ -65,7 +65,28 @@
       </div>
       <a href="javascript:void(0)" id="infoDockToggleBtn" class="ui-state-default ui-corner-all"></a>
     </div>
-    
+
+    <!-- DialogBoxes -->
+
+    <div id="createProject-dialog" class="create-dialog" style="display: none;">
+      <h1>New Project</h1>
+      <table>
+        <tr>
+          <td>Name:</td>
+          <td><input type="text" id="createProject-name" class="text ui-widget-content ui-corner-all"/></td>
+        </tr><tr>
+          <td>Description:</td>
+          <td><textarea id="createProject-desc" class="ui-widget-content ui-corner-all"></textarea></td>
+        </tr>
+      </table>    
+      <div class="buttonBar">  
+        <button id="createProject-submit">Create Project</button>
+        <button id="createProject-cancel">Cancel</button>
+        <img class="loading" src="static/images/loading.gif" width="32" height="32"/>
+      </div>
+      <div class="clearPanel"></div>
+    </div>    
+
 {% endblock %}
 
 {% block scripts %}

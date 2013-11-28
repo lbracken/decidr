@@ -200,6 +200,36 @@ img {border: none;}
 	padding: .1em .5em .1em .5em;
 }
 
+/* create-dialog class covers both createProject and createItem dialogs */
+
+.create-dialog table {
+	margin: 12px 0px 12px 0px;
+}
+
+.create-dialog table td {
+	vertical-align: top;
+}
+
+.create-dialog input {
+	width: 325px;	
+	margin-bottom: 12px;
+	font-size: 1.3em;
+}
+
+.create-dialog textarea {
+	width: 325px;
+	height: 5em;
+	resize: none;
+}
+
+.create-dialog .buttonBar {
+	float: right;
+}
+
+.create-dialog .buttonBar button,img{
+	margin-left: 10px;
+}
+
 #footer {
 	width: 600px;
 	margin: auto;
