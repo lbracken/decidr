@@ -2,7 +2,33 @@
    :license: MIT, see LICENSE for more details.
 */
 
+// Constants
+var gridMarginTop = 5;
+var gridMarginBottom = 25;
+var gridMarginLeft = 25;
+var gridMarginRight = 5;
+var gridAxisTextStyle = {'text-anchor':'middle', 'font-size':12, 'font-weight':'bold'};
+var gridAxisStyle      = {'stroke':'#111'};
+var gridMinorAxisStyle = {'stroke':'#DDD'};
+
+// Application state
 var currProject = null;
+
+var grid = null;
+var gridWidth = 0;
+var gridHeight = 0;
+var gridInnerWidth = 0;
+var gridInnerHeight = 0;
+var gridMidX = 0;
+var gridMidY = 0;
+
+var effectSpeed = "slow";
+
+
+
+
+// Debug variables
+var resizeCount = 0;
 
 
 // ****************************************************************************
@@ -62,6 +88,13 @@ function loadProject(response) {
 	$("#prjTitle").text(currProject.name);
 	$("#prjDesc").text(currProject.desc);
 	$("#prjCtrlBar").fadeIn();
+
+	toggleInfoDock();
+	resizeContent();
+	toggleGridContainer();
+
+	effectSpeed = "fast";
+	renderGrid();
 }
 
 // ****************************************************************************
@@ -86,6 +119,92 @@ function showServerCommunicationFailure() {
 	$("#updateSuccess").hide();
 	$("#updateInProgress").hide();
 	$("#updateFailure").fadeIn();
+}
+
+function toggleGridContainer() {
+	$("#gridContainer").toggle("drop", {direction:"left"}, effectSpeed, resizeContent);
+}
+
+function resizeContent() {
+	var contentWidth = $("#content").width();
+	var currInfoDockWidth = isInfoDockVisible() ? $("#infoDock").width() : 0;
+	var gridContainerRightPadding = isInfoDockVisible() ? 20 : 0;
+	var gridContainerWidth = contentWidth - currInfoDockWidth - gridContainerRightPadding;
+	$("#gridContainer").width(gridContainerWidth);
+	if(grid != null) {
+		renderGrid();
+	}
+
+	resizeCount = resizeCount + 1;
+	$("#_debug_resizeCount").text(resizeCount);
+}
+
+function isInfoDockVisible() {
+	return $("#infoDock").is(":visible");
+}
+
+function toggleInfoDock() {
+	$("#infoDockToggleBtn").hide();
+	$("#infoDockToggleBtn").text(isInfoDockVisible() ? "<< Show Details" : "Hide Details >>");
+	$("#infoDockToggleBtn").fadeIn();
+	$("#infoDock").toggle("drop", {direction:"right"}, effectSpeed, resizeContent);
+}
+
+
+
+
+
+// ****************************************************************************
+// *                                                                          *
+// *  UI - Grid                                                                      *
+// *                                                                          *
+// ****************************************************************************
+
+function renderGrid() {
+
+	// Ensure there's a project to render
+	if (!currProject) {
+		return;
+	}
+
+	gridWidth = $("#gridContainer").width() - 5;
+	gridHeight = $("#gridContainer").height() - 5;
+	gridInnerWidth = gridWidth - gridMarginRight - gridMarginLeft;
+	gridInnerHeight = gridHeight - gridMarginBottom - gridMarginTop
+	gridMidX = (gridInnerWidth) / 2 + gridMarginLeft;
+	gridMidY = (gridInnerHeight) / 2 + gridMarginTop;
+
+	// Hide and clear the Grid
+	if (grid) {
+		grid.clear();
+		grid.setSize(gridWidth, gridHeight);
+	} else {
+		grid = Raphael("grid", gridWidth, gridHeight);
+	}
+
+	// Draw Axis labels
+	var xAxisLabel = grid.text(gridMidX, gridHeight-10, currProject.x_axis_label);	
+	var yAxisLabel = grid.text(10, gridMidY, currProject.y_axis_label);
+
+	xAxisLabel.attr(gridAxisTextStyle);
+	yAxisLabel.attr(gridAxisTextStyle);
+	yAxisLabel.attr({'transform':'r270'});
+
+	// Draw Axis lines
+	var xAxis = grid.path("M" + gridMarginLeft + " " + gridMidY + "H" + (gridWidth - gridMarginRight)).attr(gridAxisStyle);
+	var yAxis = grid.path("M" + gridMidX + " " + gridMarginTop + "V" + (gridHeight - gridMarginBottom)).attr(gridAxisStyle);
+
+	// Draw extra axis lines
+	grid.path("M" + (gridMarginLeft + gridInnerWidth * .25) + " " + gridMarginTop + "V" + (gridHeight - gridMarginBottom)).attr(gridMinorAxisStyle);
+	grid.path("M" + (gridMarginLeft + gridInnerWidth * .75) + " " + gridMarginTop + "V" + (gridHeight - gridMarginBottom)).attr(gridMinorAxisStyle);
+	grid.path("M" + gridMarginLeft + " " + (gridMarginTop + gridInnerHeight * .25) + "H" + (gridWidth - gridMarginRight)).attr(gridMinorAxisStyle);
+	grid.path("M" + gridMarginLeft + " " + (gridMarginTop + gridInnerHeight * .75) + "H" + (gridWidth - gridMarginRight)).attr(gridMinorAxisStyle);
+
+	// Draw the borders
+	var outerBorder = grid.path("M" + gridMarginLeft + " " + gridMarginTop +
+		"V" + (gridHeight - gridMarginBottom) + 
+		"H" + (gridWidth - gridMarginRight) +
+		"V" + (gridMarginTop) + "Z").attr(gridAxisStyle);
 }
 
 // ****************************************************************************
@@ -157,12 +276,13 @@ function getParameterByName(name) {
 
 $(document).ready(function() {
 
-	// Setup base UI
+	// Basic UI setup
+	$(window).resize(function(){resizeContent();});
 	$("input[type=submit], button").button();
+	$("#infoDockToggleBtn").click(toggleInfoDock);
 
 	// Setup dialogs
 	setupCreateProjectDialog();
-
 
 	// See if a project id is provided in the URL. If so then open that
 	// project, otherwise show the createProject dialog.
