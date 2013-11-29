@@ -51,7 +51,7 @@ def save_project(project):
     now = get_current_timestamp()
 
     # If the project doesn't have an id, then set one
-    if not hasattr(project, "_id"):
+    if "_id" not in project:
         project["_id"] = generate_project_id()
         project["date_created"] = now
 
