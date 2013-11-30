@@ -24,7 +24,7 @@
       </div>
       
       <div id="prjCtrlBar" style="display: none;">
-        <button id="showCreateItemBtn">New Item</button>
+        <button id="createItem-show">New Item</button>
       </div>
       
       <div class="clearPanel"></div>
@@ -85,7 +85,27 @@
         <img class="loading" src="static/images/loading.gif" width="32" height="32"/>
       </div>
       <div class="clearPanel"></div>
-    </div>    
+    </div>
+
+    <div id="createItem-dialog" class="create-dialog" style="display: none;">
+      <h1>New Item</h1>
+      <table>
+        <tr>
+          <td>Name:</td>
+          <td><input type="text" id="createItem-name" class="text ui-widget-content ui-corner-all"/></td>
+        </tr><tr>
+          <td>Description:</td>
+          <td><textarea id="createItem-desc" class="ui-widget-content ui-corner-all"></textarea></td>
+        </tr>
+      </table>    
+      <div class="buttonBar">  
+        <button id="createItem-submit">Create Item</button>
+        <button id="createItem-cancel">Cancel</button>
+        <img class="loading" src="static/images/loading.gif" width="32" height="32"/>
+      </div>
+
+      <div class="clearPanel"></div>
+    </div>      
 
 {% endblock %}
 

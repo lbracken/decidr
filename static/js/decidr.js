@@ -11,6 +11,8 @@ var gridAxisTextStyle = {'text-anchor':'middle', 'font-size':12, 'font-weight':'
 var gridAxisStyle      = {'stroke':'#111'};
 var gridMinorAxisStyle = {'stroke':'#DDD'};
 
+var itemDefaultColor = "#D15600";
+
 // Application state
 var currProject = null;
 
@@ -23,9 +25,6 @@ var gridMidX = 0;
 var gridMidY = 0;
 
 var effectSpeed = "slow";
-
-
-
 
 // Debug variables
 var resizeCount = 0;
@@ -52,7 +51,7 @@ function createProject() {
 	// Create a new project object
 	var project = new Object();
 	project.name = $("#createProject-name").val().trim();
-	project.desc = $("#createProject-desc").val().trim();;
+	project.desc = $("#createProject-desc").val().trim();
 	project.x_axis_label = "Effort";	// Set to default...
 	project.y_axis_label = "Value";		// Set to default...
 	project.items = new Array();
@@ -76,6 +75,20 @@ function onProjectCreated(response) {
 	loadProject(response);
 }
 
+function saveProject() {
+
+	if (!currProject) {
+		return;
+	}
+
+	showServerCommunicationInProgress();
+	$.post("save_project", {project : JSON.stringify(currProject)}, onProjectSaved);
+}
+
+function onProjectSaved() {
+	showServerCommunicationSuccess();
+}
+
 function loadProject(response) {
 
 	currProject = response.project;
@@ -96,6 +109,34 @@ function loadProject(response) {
 	effectSpeed = "fast";
 	renderGrid();
 }
+
+function createItem() {
+
+	// Create a new item object
+	var item = new Object();
+	item.name = $("#createItem-name").val().trim();
+	item.desc = $("#createItem-desc").val().trim();
+	item.color = itemDefaultColor;
+	item.rev = new Array();
+
+	var itemRev = new Object();
+	itemRev.rev = currProject.curr_rev + 1;
+	itemRev.x = 50;
+	itemRev.y = 50;
+	item.rev.push(itemRev);
+
+	// Add this item to the current project
+	currProject.curr_rev = itemRev.rev;
+	currProject.items.push(item);
+
+	// Update the UI
+	hideCreateItemDialog();
+	renderGrid();
+
+	// Update the project on the server
+	saveProject();
+}
+
 
 // ****************************************************************************
 // *                                                                          *
@@ -254,6 +295,46 @@ function hideCreateProjectDialog() {
 	$("#createProject-dialog").dialog("close");
 }
 
+function setupCreateItemDialog() {
+
+	$("#createItem-dialog").dialog({
+		autoOpen: false,
+		height: 275,
+		width: 450,
+		modal: true,
+		resizable: false,
+		show: {effect:"fadeIn", duration:500},
+		open: function() {
+			$(this).dialog("widget").find(".ui-dialog-titlebar").hide();
+		}
+	});
+
+	$("#createItem-submit").click(createItem);
+	$("#createItem-cancel").click(hideCreateItemDialog);
+	$("#createItem-show").click(showCreateItemDialog);
+}
+
+function showCreateItemDialog() {
+
+	// Smoothly scroll to the top of the page
+	$("html, body").animate({scrollTop: 0});
+
+	$("#createItem-name").val("");
+	$("#createItem-desc").val("");
+	$("#createItem-name").prop('disabled', false);
+	$("#createItem-desc").prop('disabled', false);
+	$("#createItem-dialog").dialog("open");
+
+	$("#createItem-dialog .loading").hide();
+	$("#createItem-submit").show();
+	$("#createItem-cancel").show();
+	$("#createItem-name").focus();	
+}
+
+function hideCreateItemDialog() {
+	$("#createItem-dialog").dialog("close");
+}
+
 
 // ****************************************************************************
 // *                                                                          *
@@ -279,10 +360,12 @@ $(document).ready(function() {
 	// Basic UI setup
 	$(window).resize(function(){resizeContent();});
 	$("input[type=submit], button").button();
+
 	$("#infoDockToggleBtn").click(toggleInfoDock);
 
 	// Setup dialogs
 	setupCreateProjectDialog();
+	setupCreateItemDialog();
 
 	// See if a project id is provided in the URL. If so then open that
 	// project, otherwise show the createProject dialog.
