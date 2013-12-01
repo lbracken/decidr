@@ -11,7 +11,11 @@ var gridAxisTextStyle = {'text-anchor':'middle', 'font-size':12, 'font-weight':'
 var gridAxisStyle      = {'stroke':'#111'};
 var gridMinorAxisStyle = {'stroke':'#DDD'};
 
-var itemDefaultColor = "#D15600";
+var gridItemTextOffsetY = 15;
+var gridItemStyle = {'cursor':'pointer'};
+var gridItemTextStyle = {'text-anchor':'middle', 'font-size':12};
+var gridItemDefaultColor = "#D15600";
+var gridItemMoveTolerance = 2;
 
 // Application state
 var currProject = null;
@@ -23,6 +27,9 @@ var gridInnerWidth = 0;
 var gridInnerHeight = 0;
 var gridMidX = 0;
 var gridMidY = 0;
+
+var gridItemPoints = null;
+var currSelectedItem = null;
 
 var effectSpeed = "slow";
 
@@ -116,7 +123,7 @@ function createItem() {
 	var item = new Object();
 	item.name = $("#createItem-name").val().trim();
 	item.desc = $("#createItem-desc").val().trim();
-	item.color = itemDefaultColor;
+	item.color = gridItemDefaultColor;
 	item.rev = new Array();
 
 	var itemRev = new Object();
@@ -191,10 +198,6 @@ function toggleInfoDock() {
 	$("#infoDock").toggle("drop", {direction:"right"}, effectSpeed, resizeContent);
 }
 
-
-
-
-
 // ****************************************************************************
 // *                                                                          *
 // *  UI - Grid                                                                      *
@@ -246,6 +249,176 @@ function renderGrid() {
 		"V" + (gridHeight - gridMarginBottom) + 
 		"H" + (gridWidth - gridMarginRight) +
 		"V" + (gridMarginTop) + "Z").attr(gridAxisStyle);
+
+	// Render each item
+	var firstItem = null;
+	gridItemPoints = new Array();
+	if (currProject.items) {
+		$.each(currProject.items, function(idx, item) {
+			gridItemPoints[idx] = renderGridItem(item);
+
+			// Select the first item
+			if (idx == 0) {
+				firstItem = item;
+			}
+		});
+	}
+	
+	var itemToSelect = (null == currSelectedItem) ? firstItem : currSelectedItem;
+	selectItem(itemToSelect);	
+}
+
+function renderGridItem(item) {
+
+	if (!item || !item.rev) {
+		return;
+	}
+
+	var currRev = item.rev[item.rev.length-1];
+	var itemX = calculateItemPointX(currRev.x);
+	var itemY = calculateItemPointY(currRev.y);
+
+	var itemPoint = grid.circle(itemX, itemY, 5);	
+	itemPoint.attr(gridItemStyle);
+	itemPoint.attr({'fill':item.color});
+
+	itemPoint.textLabel = grid.text(itemX, itemY - gridItemTextOffsetY, item.name);
+	itemPoint.textLabel.attr(gridItemTextStyle);
+
+	itemPoint.drag(gridItemMove, gridItemMoveStart, gridItemMoveEnd);
+	itemPoint.click(gridItemClick);
+	itemPoint.dblclick(gridItemDblClick);
+
+	itemPoint.item = item;
+	return itemPoint;
+}
+
+function selectItem(item) {
+
+	if (!item) {
+		return;
+	}
+
+	currSelectedItem = item;
+
+	// Remove highlight from all other itemPoints, and then add a highlight
+	// to the selected item.
+	$.each(gridItemPoints, function(idx, itemPoint) {
+		if (itemPoint.glowing) {
+			itemPoint.glowing.remove();
+		}
+		if (item === itemPoint.item) {
+			itemPoint.glowing = itemPoint.glow({color:'#FBEC5D',width:60});
+		}
+	});
+
+	$("#itemTitle").text(item.name);
+	$("#itemDesc").val(item.desc);
+	$("#itemColorSelector").val(item.color);
+
+	if(item.rev) {
+		$("#itemRevs").text(item.rev.length-1);
+		var latestRev = item.rev[item.rev.length-1];
+		$("#itemXPos").text(latestRev.x);
+		$("#itemYPos").text(latestRev.y);
+	}	
+}
+
+function gridItemMove(dx, dy) {
+
+	// TODO: Collision detection...
+
+	// Calculate new X,Y
+	var X = this.attr("cx") + dx - (this.dx || 0),
+	    Y = this.attr("cy") + dy - (this.dy || 0);
+
+	// Ensure new values are within bounds
+	if(X < gridMarginLeft) {X = gridMarginLeft;}
+	if(X > gridMarginLeft + gridInnerWidth) {X = gridMarginLeft + gridInnerWidth;}
+	if(Y < gridMarginTop) {Y = gridMarginTop;}
+	if(Y > gridMarginTop + gridInnerHeight) {Y = gridMarginTop + gridInnerHeight;}
+	gridItemReposition(this, X, Y);
+
+	this.dx = dx;
+	this.dy = dy;
+}
+
+function gridItemReposition(itemPoint, X, Y) {
+
+	// Reposition the item point and label
+	itemPoint.attr({cx: X, cy: Y});
+	itemPoint.textLabel.attr({x: X, y: (Y-gridItemTextOffsetY)});
+}
+
+function gridItemMoveStart() {
+	selectItem(this.item);
+
+	if (this.glowing) {
+		this.glowing.remove();
+	}
+}
+
+function gridItemMoveEnd(dx, dy) {
+	this.dx = this.dy = 0;
+	var currItem = this.item;
+
+	// Fade out and in to show move has 'snapped' in place
+	this.attr({'opacity':0}).animate({'opacity':1}, 500);
+
+	var newX = calculateXFromItemPoint(this);
+	var newY = calculateYFromItemPoint(this);
+
+	// Don't update an item if the move was very small
+	var oldX = currItem.rev[currItem.rev.length-1].x;
+	var oldY = currItem.rev[currItem.rev.length-1].y;
+	if (Math.abs(newX - oldX) < gridItemMoveTolerance && Math.abs(newY - oldY) < gridItemMoveTolerance) {
+		gridItemReposition(this, calculateItemPointX(oldX), calculateItemPointY(oldY));
+		return;
+	}
+
+	var itemRev = new Object();
+	itemRev.rev = currProject.curr_rev+1;
+	itemRev.x = newX;
+	itemRev.y = newY;	
+	
+	$.each(currProject.items, function(idx, currPrjItem) {
+		if (currPrjItem === currItem) {
+			currPrjItem.rev.push(itemRev);
+			currProject.curr_rev = itemRev.rev;
+			return false;	// Break loop
+		}
+	});
+
+	// Update on server...
+	saveProject();
+}
+
+function gridItemClick() {	
+	selectItem(this.item, this);
+}
+
+function gridItemDblClick() {
+	// TODO: Toggle showing grid item history
+}
+
+// Get the SVG grid coordinates from the Item's 'X' value
+function calculateItemPointX(itemX) {
+	return gridInnerWidth * (itemX / 100.0) + gridMarginLeft
+}
+
+// Get the SVG grid coordinates from the Item's 'Y' value
+function calculateItemPointY(itemY) {
+	return gridInnerHeight * Math.abs((100 - itemY) / 100.0) + gridMarginTop;
+}
+
+// Get the Item's 'X' value from the SVG grid coordinates
+function calculateXFromItemPoint(itemPoint) {
+	return Math.round((itemPoint.attr("cx") - gridMarginLeft) / gridInnerWidth * 100);
+}
+
+// Get the Item's 'Y' value from the SVG grid coordinates
+function calculateYFromItemPoint(itemPoint) {	
+	return Math.abs(Math.round((itemPoint.attr("cy") - gridMarginTop) / gridInnerHeight * 100) - 100);
 }
 
 // ****************************************************************************
