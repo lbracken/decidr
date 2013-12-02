@@ -147,6 +147,23 @@ function createItem() {
 	saveProject();
 }
 
+function deleteCurrentItem() {
+
+	if (null == currProject || null == currSelectedItem) {
+		return;
+	}
+
+	// Remove the currently selected item from the project
+	var idx = currProject.items.indexOf(currSelectedItem);	
+	currProject.items.splice(idx, 1);
+
+	// Update the UI
+	renderGrid();
+
+	// Update the project on the server
+	saveProject();
+}
+
 
 // ****************************************************************************
 // *                                                                          *
@@ -617,8 +634,10 @@ $(document).ready(function() {
 	$(window).resize(function(){resizeContent();});
 	$("input[type=submit], button").button();
 
+	// Setup infodock controls
 	$("#infoDockToggleBtn").click(toggleInfoDock);
 	$("#itemColorSelector").change(onItemColorChange);
+	$("#deleteItemBtn").click(deleteCurrentItem);
 
 	// Setup dialogs
 	setupCreateProjectDialog();
