@@ -1,0 +1,19 @@
+Project TODOs:
+
+All new features have been plotted and prioritized here:
+  http://levibracken.com/decidr#prj=decidr
+
+- Create some test applications to seed in DB
+- Hide infodock when no items are visible (after project creation as well as deletion of all items)
+- Handling failure in client-server communication
+- Add ability to create item points with shapes other than a circle
+- Add ability to edit a project (name + description)
+- Add ability to edit an item (name + description)
+- Adding show/hide history button to infodock
+- Export a list of items / pop open into a new tab
+- Form validation, require a name for both projects and items
+- Intro.js to show how to use decidr
+- Ability to save and view milestones
+- Support for viewing old revisions
+- Cookie to show user's own projects
+- Support for editing axis labels
