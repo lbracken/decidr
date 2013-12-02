@@ -8,7 +8,7 @@ var gridMarginBottom = 25;
 var gridMarginLeft = 25;
 var gridMarginRight = 5;
 var gridAxisTextStyle = {'text-anchor':'middle', 'font-size':12, 'font-weight':'bold'};
-var gridAxisStyle      = {'stroke':'#111'};
+var gridAxisStyle = {'stroke':'#111'};
 var gridMinorAxisStyle = {'stroke':'#DDD'};
 
 var gridItemTextOffsetY = 15;
@@ -17,24 +17,27 @@ var gridItemTextStyle = {'text-anchor':'middle', 'font-size':12};
 var gridItemDefaultColor = "#D15600";
 var gridItemMoveTolerance = 2;
 
-// Application state
+var gridItemHistoryPointStyle = {'fill':'#999','stroke':'#999'};
+var gridItemHistoryPathStyle = {'stroke':'#999','stroke-width':3,'stroke-linecap':'round'};
+
+
+// Application state and variables
 var currProject = null;
+var currSelectedItem = null;
 
 var grid = null;
+var gridItemPoints = null;
+
+var gridItemHistoryPoints = null;
+var girdItemHistoryPath = null;
+
 var gridWidth = 0;
 var gridHeight = 0;
 var gridInnerWidth = 0;
 var gridInnerHeight = 0;
 var gridMidX = 0;
 var gridMidY = 0;
-
-var gridItemPoints = null;
-var currSelectedItem = null;
-
 var effectSpeed = "slow";
-
-// Debug variables
-var resizeCount = 0;
 
 
 // ****************************************************************************
@@ -182,9 +185,6 @@ function resizeContent() {
 	if(grid != null) {
 		renderGrid();
 	}
-
-	resizeCount = resizeCount + 1;
-	$("#_debug_resizeCount").text(resizeCount);
 }
 
 function isInfoDockVisible() {
@@ -324,6 +324,8 @@ function selectItem(item) {
 		}
 	});
 
+	hideGridItemHistory();
+
 	$("#itemTitle").text(item.name);
 	$("#itemDesc").val(item.desc);
 	$("#itemColorSelector").val(item.color);
@@ -410,7 +412,76 @@ function gridItemClick() {
 }
 
 function gridItemDblClick() {
-	// TODO: Toggle showing grid item history
+	if (girdItemHistoryPath) {
+		hideGridItemHistory();
+	} else {
+		showGridItemHistory(this.item);
+	}
+}
+
+function showGridItemHistory(item) {
+
+	if (!item || item.rev.length <= 1) {
+		return;
+	}
+
+	var gridItemPoint = getGridItemPointByItem(item);
+	if (!gridItemPoint) {
+		return;
+	}
+
+	var girdItemHistoryPathStr = "";
+	gridItemHistoryPoints = new Array();
+	$.each(item.rev, function(idx, rev) {
+		var itemX = calculateItemPointX(rev.x);
+		var itemY = calculateItemPointY(rev.y);
+
+		if (idx != item.rev.length-1) {
+			var historyPoint = grid.circle(itemX, itemY, 5);	
+			historyPoint.attr(gridItemHistoryPointStyle);
+			gridItemHistoryPoints[idx] = historyPoint;
+		}
+
+		girdItemHistoryPathStr += (idx==0) ? "M" : "L";
+		girdItemHistoryPathStr += itemX + " " + itemY;
+	});
+
+	girdItemHistoryPath = grid.path(girdItemHistoryPathStr);
+	girdItemHistoryPath.attr(gridItemHistoryPathStyle);
+}
+
+function hideGridItemHistory() {
+
+	// Remove each history point from the graph
+	if (gridItemHistoryPoints) {
+		$.each(gridItemHistoryPoints, function(idx, gridItemHistoryPoint) {
+			gridItemHistoryPoint.remove();
+		});
+		gridItemHistoryPoints = null;
+	}
+
+	// Remove the history path from the graph
+	if (girdItemHistoryPath) {
+		girdItemHistoryPath.remove();
+		girdItemHistoryPath = null;
+	}
+}
+
+function getGridItemPointByItem(item) {
+
+	if (!item) {
+		return null;
+	}
+
+	var gridItemPoint = null;
+	$.each(gridItemPoints, function(idx, ip) {
+		if (item === ip.item) {
+			gridItemPoint = gridItemPoints[idx];
+			return false;	// Break loop
+		}
+	});
+
+	return gridItemPoint;
 }
 
 // Get the SVG grid coordinates from the Item's 'X' value
