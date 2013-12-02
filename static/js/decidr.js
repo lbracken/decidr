@@ -198,6 +198,18 @@ function toggleInfoDock() {
 	$("#infoDock").toggle("drop", {direction:"right"}, effectSpeed, resizeContent);
 }
 
+function onItemColorChange() {
+
+	if (!currSelectedItem) {
+		return;
+	}
+
+	// Update current item, rerender grid, then update on server
+	currSelectedItem.color = $("#itemColorSelector").val();
+	renderGrid();
+	saveProject();
+}
+
 // ****************************************************************************
 // *                                                                          *
 // *  UI - Grid                                                                      *
@@ -535,6 +547,7 @@ $(document).ready(function() {
 	$("input[type=submit], button").button();
 
 	$("#infoDockToggleBtn").click(toggleInfoDock);
+	$("#itemColorSelector").change(onItemColorChange);
 
 	// Setup dialogs
 	setupCreateProjectDialog();
