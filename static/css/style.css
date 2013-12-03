@@ -234,4 +234,9 @@ img {border: none;}
 	width: 600px;
 	margin: auto;
 	text-align: center;
+	color: #666 !important;
+}
+
+#footer A:link, A:visited, A:hover, A:active {
+	color: #666 !important;
 }
