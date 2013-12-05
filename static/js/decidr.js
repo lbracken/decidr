@@ -53,7 +53,15 @@ function getProject(projectId) {
 		return;
 	}
 
-	$.getJSON("get_project", {id:projectId}, loadProject);
+	$.getJSON("get_project", {id:projectId}, loadProject)
+		.fail(onGetProjectFailure);
+}
+
+function onGetProjectFailure(jqxhr, textStatus, error) {
+	hideServerCommunication();
+
+	$("#fatalErrorMessage").show();
+	$("#fatalErrorMessage").text("Error getting project from server.");
 }
 
 function createProject() {
@@ -76,13 +84,22 @@ function createProject() {
 
 	// TODO: The JSON.stringify won't be IE friendly..?..
 	showServerCommunicationInProgress();
-	$.post("save_project", {project : JSON.stringify(project)}, onProjectCreated);
+	$.post("save_project", {project : JSON.stringify(project)}, onProjectCreated)
+		.fail(onCreateProjectFailure);
 }
 
 function onProjectCreated(response) {
 	hideCreateProjectDialog();
 	showServerCommunicationSuccess();
 	loadProject(response);
+}
+
+function onCreateProjectFailure(jqxhr, textStatus, error) {
+	hideCreateProjectDialog();
+	hideServerCommunication();
+
+	$("#fatalErrorMessage").show();
+	$("#fatalErrorMessage").text("Error creating project on server.");
 }
 
 function saveProject() {
@@ -92,18 +109,24 @@ function saveProject() {
 	}
 
 	showServerCommunicationInProgress();
-	$.post("save_project", {project : JSON.stringify(currProject)}, onProjectSaved);
+	$.post("save_project", {project : JSON.stringify(currProject)}, onProjectSaved)
+		.fail(onSaveProjectFailure);
 }
 
 function onProjectSaved() {
 	showServerCommunicationSuccess();
 }
 
+function onSaveProjectFailure(jqxhr, textStatus, error) {
+	showServerCommunicationFailure();
+}
+
 function loadProject(response) {
 
 	currProject = response.project;
 	if (!currProject) {
-		alert('Unable to load project -- no project provided');
+		$("#fatalErrorMessage").show();
+		$("#fatalErrorMessage").text("No project found with the id '" + response.id  + "'");
 		return;
 	}
 
@@ -164,7 +187,6 @@ function deleteCurrentItem() {
 	saveProject();
 }
 
-
 // ****************************************************************************
 // *                                                                          *
 // *  UI                                                                      *
@@ -172,6 +194,7 @@ function deleteCurrentItem() {
 // ****************************************************************************
 
 function showServerCommunicationInProgress() {
+	$("#fatalErrorMessage").hide();
 	$("#updateSuccess").hide();
 	$("#updateFailure").hide();
 	$("#updateInProgress").fadeIn();
@@ -187,6 +210,12 @@ function showServerCommunicationFailure() {
 	$("#updateSuccess").hide();
 	$("#updateInProgress").hide();
 	$("#updateFailure").fadeIn();
+}
+
+function hideServerCommunication() {
+	$("#updateSuccess").hide();
+	$("#updateInProgress").hide();
+	$("#updateFailure").hide();
 }
 
 function toggleGridContainer() {
