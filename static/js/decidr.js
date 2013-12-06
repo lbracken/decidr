@@ -90,6 +90,7 @@ function createProject() {
 
 function onProjectCreated(response) {
 	hideCreateProjectDialog();
+	hideInfoDock();
 	showServerCommunicationSuccess();
 	loadProject(response);
 }
@@ -135,9 +136,12 @@ function loadProject(response) {
 	$("#prjDesc").text(currProject.desc);
 	$("#prjCtrlBar").fadeIn();
 
-	toggleInfoDock();
+	if (currProject.items.length > 0) {
+		toggleInfoDock();
+	}
+
 	resizeContent();
-	toggleGridContainer();
+	showGridContainer();
 
 	effectSpeed = "fast";
 	renderGrid();
@@ -158,6 +162,11 @@ function createItem() {
 	itemRev.y = 50;
 	item.rev.push(itemRev);
 
+	// If this is the first item being added, then toggle in the infodock.
+	if (currProject.items.length == 0) {
+		toggleInfoDock();
+	}	
+
 	// Add this item to the current project
 	currProject.curr_rev = itemRev.rev;
 	currProject.items.push(item);
@@ -165,6 +174,7 @@ function createItem() {
 	// Update the UI
 	hideCreateItemDialog();
 	renderGrid();
+	selectItem(item);
 
 	// Update the project on the server
 	saveProject();
@@ -180,8 +190,19 @@ function deleteCurrentItem() {
 	var idx = currProject.items.indexOf(currSelectedItem);	
 	currProject.items.splice(idx, 1);
 
+	// If there are no longer items, then hide the infodock
+	if (currProject.items.length < 1) {
+		hideInfoDock();
+		resizeContent();
+	}
+
 	// Update the UI
 	renderGrid();
+
+	// Select another item, if there are items remaining
+	if (currProject.items.length > 0) {
+		selectItem(currProject.items[0]);
+	}
 
 	// Update the project on the server
 	saveProject();
@@ -218,7 +239,8 @@ function hideServerCommunication() {
 	$("#updateFailure").hide();
 }
 
-function toggleGridContainer() {
+function showGridContainer() {
+	$("#gridContainer").hide();
 	$("#gridContainer").toggle("drop", {direction:"left"}, effectSpeed, resizeContent);
 }
 
@@ -242,6 +264,11 @@ function toggleInfoDock() {
 	$("#infoDockToggleBtn").text(isInfoDockVisible() ? "<< Show Details" : "Hide Details >>");
 	$("#infoDockToggleBtn").fadeIn();
 	$("#infoDock").toggle("drop", {direction:"right"}, effectSpeed, resizeContent);
+}
+
+function hideInfoDock() {
+	$("#infoDockToggleBtn").hide();
+	$("#infoDock").hide();
 }
 
 function onItemColorChange() {
