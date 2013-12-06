@@ -51,10 +51,10 @@ def get_project():
             response_body["id"] = id
             response_body["message"] = "No project found for given id"
 
-        if verbose:
-            now = str(datetime.now())
-            found = True if project else False
-            print ">> %s  getProject[%s] -- Found: %r" % (now, id, found)          
+        now = str(datetime.now())
+        found = True if project else False
+        print ">> %s\t%s\tget_project()\t[%s]\tFound:%r" % \
+                (request.remote_addr, now, project["_id"], found)          
     
     else:
         response_body["error"] = True
@@ -73,6 +73,7 @@ def save_project():
     response_body = {}
 
     if project:
+        operation = "save" if "_id" in project else "create"
         project = project_service.save_project(project)
 
         if project:
@@ -82,9 +83,9 @@ def save_project():
             response_body["error"] = True
             response_body["message"] = "Error saving the project"
 
-        if verbose:
-            now = str(datetime.now())
-            print ">> %s  saveProject[%s]" % (now, id)          
+        now = str(datetime.now())
+        print ">> %s\t%s\t%s_project()\t[%s]" % \
+                (request.remote_addr, now, operation, project["_id"])
     
     else:
         response_body["error"] = True
