@@ -20,6 +20,8 @@ var gridItemMoveTolerance = 2;
 var gridItemHistoryPointStyle = {'fill':'#999','stroke':'#999'};
 var gridItemHistoryPathStyle = {'stroke':'#999','stroke-width':3,'stroke-linecap':'round'};
 
+var recentProjectsCookieName = "recentProjects";
+var recentProjectsMax = 7;
 
 // Application state and variables
 var currProject = null;
@@ -124,6 +126,7 @@ function onSaveProjectFailure(jqxhr, textStatus, error) {
 
 function loadProject(response) {
 
+	hideCreateProjectDialog();
 	currProject = response.project;
 	if (!currProject) {
 		$("#fatalErrorMessage").show();
@@ -144,7 +147,8 @@ function loadProject(response) {
 	showGridContainer();
 
 	effectSpeed = "fast";
-	renderGrid();
+	renderGrid();	
+	recentProjects = updateRecentProjectsCookie();
 }
 
 function createItem() {
@@ -587,8 +591,7 @@ function setupCreateProjectDialog() {
 
 	$("#createProject-dialog").dialog({
 		autoOpen: false,
-		height: 275,
-		width: 450,
+		height: 300,
 		modal: true,
 		resizable: false,
 		show: {effect:"fadeIn", duration:500},
@@ -607,6 +610,23 @@ function showCreateProjectDialog() {
 	// Smoothly scroll to the top of the page
 	$("html, body").animate({scrollTop: 0});
 
+	var recentProjects = getRecentProjectsFromCookie();
+	if (recentProjects && recentProjects.length > 0) {
+		
+		$("#recentProjects").show();
+
+		var listItemsStr = "";
+		$.each(recentProjects, function(i, prj) {
+			listItemsStr += "<li><a href='#prj=" + prj._id + "'>" + prj.name + "</a></li>";
+		});
+		$("#recentProjects-List").html(listItemsStr);
+		$("#createProject-dialog").dialog( "option", "width", 750);
+
+	} else {
+		$("#recentProjects").hide();
+		$("#createProject-dialog").dialog( "option", "width", 475);
+	}	
+
 	// Reset the dialog's form fields
 	$("#createProject-name").val("");
 	$("#createProject-desc").val("");
@@ -616,8 +636,14 @@ function showCreateProjectDialog() {
 
 	$("#createProject-dialog .loading").hide();
 	$("#createProject-submit").show();
-	$("#createProject-cancel").show();
 	$("#createProject-name").focus();
+
+	// Only allow the dialog to be closed if there's a project loaded
+	if (currProject) {
+		$("#createProject-cancel").show();
+	} else { 
+		$("#createProject-cancel").hide();
+	}
 }
 
 function hideCreateProjectDialog() {
@@ -664,6 +690,66 @@ function hideCreateItemDialog() {
 	$("#createItem-dialog").dialog("close");
 }
 
+// ****************************************************************************
+// *                                                                          *
+// *  Cookie Handling                                                         *
+// *                                                                          *
+// ****************************************************************************
+
+
+// Ensures that the current project has been added to the recent projects cookie
+function updateRecentProjectsCookie() {
+
+	if (!currProject) {
+		return;
+	}
+
+	// Get the list of recent projects from the recent projects cookie.
+	// If the current project is in the list of recent cookies then
+	// remove it (so we can add to top of list later)...
+	var recentProjects = getRecentProjectsFromCookie();
+	if (recentProjects) {
+		for (var i = 0; i < recentProjects.length; i++) {
+			if (recentProjects[i]._id === currProject._id) {
+				recentProjects.splice(i, 1);
+				break;
+			}
+		}
+	} else {
+		recentProjects = new Array();
+	}
+
+	// We can't really exceed 4KB per cookie, so limit the cookie
+	// to only keep the last few projects
+	if (recentProjects.length > recentProjectsMax - 1) {
+		var toRemove = recentProjects.length - recentProjectsMax + 1;
+		recentProjects.splice(recentProjectsMax - 1, toRemove);
+	}
+
+	// Add the current project to the top of the list
+	var recentProject = {};
+	recentProject._id = currProject._id;
+	recentProject.name = currProject.name;
+	recentProjects.unshift(recentProject);
+	$.cookie(recentProjectsCookieName, JSON.stringify(recentProjects));
+
+	return recentProjects;
+}
+
+// Gets a list of recent projects from the recent projects cookie
+function getRecentProjectsFromCookie() {
+
+	try {
+		recentProjects = JSON.parse($.cookie(recentProjectsCookieName));
+		return recentProjects;
+	} catch (err) {
+		// If the cookie couldn't be parsed, then set its value to empty string
+		$.cookie(recentProjectsCookieName, "");
+		return null;
+	}
+}
+
+
 
 // ****************************************************************************
 // *                                                                          *
@@ -684,11 +770,24 @@ function getParameterByName(name) {
     return "";
 }
 
+function onHashChange(showCreateProject) {
+
+	// See if a project id is provided in the URL. If so then open that
+	// project, otherwise show the createProject dialog.
+	var projectId = getParameterByName("prj");
+	if (projectId) {
+		getProject(projectId);
+	} else if (showCreateProject) {
+		showCreateProjectDialog();
+	}	
+}
+
 $(document).ready(function() {
 
 	// Basic UI setup
-	$(window).resize(function(){resizeContent();});
-	$("input[type=submit], button").button();
+	$(window).resize(resizeContent);
+	$(window).on("hashchange", onHashChange);
+	$("input[type=submit], button").button();	
 
 	// Setup infodock controls
 	$("#infoDockToggleBtn").click(toggleInfoDock);
@@ -699,12 +798,6 @@ $(document).ready(function() {
 	setupCreateProjectDialog();
 	setupCreateItemDialog();
 
-	// See if a project id is provided in the URL. If so then open that
-	// project, otherwise show the createProject dialog.
-	var projectId = getParameterByName("prj");
-	if (projectId) {
-		getProject(projectId);
-	} else {
-		showCreateProjectDialog();
-	}
+	// Load any provided project, or show createProject
+	onHashChange(true);
 });

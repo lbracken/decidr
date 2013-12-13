@@ -21,7 +21,7 @@ body {}
 
 h1 {
   padding-bottom: .25em;
-  font-size: 2.2em;
+  font-size: 1.7em;
 }
 
 A:link    {color: #76A0C9; text-decoration: none;}
@@ -235,6 +235,17 @@ img {border: none;}
 
 .create-dialog .buttonBar button,img{
 	margin-left: 10px;
+}
+
+#recentProjects {
+	padding-left: 20px;
+	margin-left: 20px;
+	border-left: 1px solid #CCC;
+}
+
+#recentProjects li {
+	font-size: 1.2em;
+	margin-bottom: 3px;
 }
 
 #footer {
