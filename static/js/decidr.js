@@ -23,6 +23,11 @@ var gridItemHistoryPathStyle = {'stroke':'#999','stroke-width':3,'stroke-linecap
 var recentProjectsCookieName = "recentProjects";
 var recentProjectsMax = 7;
 
+var createEditProjectDialogHeight = 300;
+var createEditProjectDialogHeightTall = 340;
+var createEditProjectDialogWidth = 475;
+var createEditProjectDialogWidthWide = 750;
+
 // Application state and variables
 var currProject = null;
 var currSelectedItem = null;
@@ -67,22 +72,16 @@ function onGetProjectFailure(jqxhr, textStatus, error) {
 }
 
 function createProject() {
+	disableCreateEditProjectForm();
 
 	// Create a new project object
 	var project = new Object();
-	project.name = $("#createProject-name").val().trim();
-	project.desc = $("#createProject-desc").val().trim();
+	project.name = $("#createEditProject-name").val().trim();
+	project.desc = $("#createEditProject-desc").val().trim();
 	project.x_axis_label = "Effort";	// Set to default...
 	project.y_axis_label = "Value";		// Set to default...
 	project.items = new Array();
 	project.curr_rev = 0;
-
-	// Disable the createProject form
-	$("#createProject-name").prop('disabled', true);
-	$("#createProject-desc").prop('disabled', true);
-	$("#createProject-submit").hide();
-	$("#createProject-cancel").hide();
-	$("#createProject-dialog .loading").show();
 
 	// TODO: The JSON.stringify won't be IE friendly..?..
 	showServerCommunicationInProgress();
@@ -91,18 +90,36 @@ function createProject() {
 }
 
 function onProjectCreated(response) {
-	hideCreateProjectDialog();
+	hideCreateEditProjectDialog();
 	hideInfoDock();
 	showServerCommunicationSuccess();
 	loadProject(response);
 }
 
 function onCreateProjectFailure(jqxhr, textStatus, error) {
-	hideCreateProjectDialog();
+	hideCreateEditProjectDialog();
 	hideServerCommunication();
 
 	$("#fatalErrorMessage").show();
 	$("#fatalErrorMessage").text("Error creating project on server.");
+}
+
+function editProject() {
+	disableCreateEditProjectForm();
+
+	// Update the current project with new values
+	currProject.name = $("#createEditProject-name").val().trim();
+	currProject.desc = $("#createEditProject-desc").val().trim();
+	currProject.x_axis_label = $("#createEditProject-xaxis").val().trim();
+	currProject.y_axis_label = $("#createEditProject-yaxis").val().trim();
+
+	// Update the UI
+	renderProjectTitleDescription();
+	renderGrid();
+
+	// Save the project
+	saveProject();
+	hideCreateEditProjectDialog();	
 }
 
 function saveProject() {
@@ -126,7 +143,7 @@ function onSaveProjectFailure(jqxhr, textStatus, error) {
 
 function loadProject(response) {
 
-	hideCreateProjectDialog();
+	hideCreateEditProjectDialog();
 	currProject = response.project;
 	if (!currProject) {
 		$("#fatalErrorMessage").show();
@@ -135,8 +152,7 @@ function loadProject(response) {
 	}
 
 	window.location.hash = "#prj=" + currProject._id;
-	$("#prjTitle").text(currProject.name);
-	$("#prjDesc").text(currProject.desc);
+	renderProjectTitleDescription();
 	$("#prjCtrlBar").fadeIn();
 
 	if (currProject.items.length > 0) {
@@ -149,6 +165,14 @@ function loadProject(response) {
 	effectSpeed = "fast";
 	renderGrid();	
 	recentProjects = updateRecentProjectsCookie();
+}
+
+function renderProjectTitleDescription() {
+
+	if (currProject) {
+		$("#prjTitle").text(currProject.name);
+		$("#prjDesc").text(currProject.desc);
+	}
 }
 
 function createItem() {
@@ -587,11 +611,10 @@ function calculateYFromItemPoint(itemPoint) {
 // *                                                                          *
 // ****************************************************************************
 
-function setupCreateProjectDialog() {
+function setupCreateEditProjectDialog() {
 
-	$("#createProject-dialog").dialog({
+	$("#createEditProject-dialog").dialog({
 		autoOpen: false,
-		height: 300,
 		modal: true,
 		resizable: false,
 		show: {effect:"fadeIn", duration:500},
@@ -600,15 +623,15 @@ function setupCreateProjectDialog() {
 		}
 	});
 
-	$("#createProject-submit").click(createProject);
-	$("#createProject-cancel").click(hideCreateProjectDialog);
+	$("#createEditProject-cancel").click(hideCreateEditProjectDialog);
 	$("#createProject-show").click(showCreateProjectDialog);
+	$("#editProject-show").click(showEditProjectDialog);
 }
 
 function showCreateProjectDialog() {
 
-	// Smoothly scroll to the top of the page
-	$("html, body").animate({scrollTop: 0});
+	resetCreateEditProjectDialog("Create New Project",
+		"Create Project", createProject);
 
 	var recentProjects = getRecentProjectsFromCookie();
 	if (recentProjects && recentProjects.length > 0) {
@@ -620,34 +643,81 @@ function showCreateProjectDialog() {
 			listItemsStr += "<li><a href='#prj=" + prj._id + "'>" + prj.name + "</a></li>";
 		});
 		$("#recentProjects-List").html(listItemsStr);
-		$("#createProject-dialog").dialog( "option", "width", 750);
-
-	} else {
-		$("#recentProjects").hide();
-		$("#createProject-dialog").dialog( "option", "width", 475);
-	}	
-
-	// Reset the dialog's form fields
-	$("#createProject-name").val("");
-	$("#createProject-desc").val("");
-	$("#createProject-name").prop("disabled", false);
-	$("#createProject-desc").prop("disabled", false);
-	$("#createProject-dialog").dialog("open");
-
-	$("#createProject-dialog .loading").hide();
-	$("#createProject-submit").show();
-	$("#createProject-name").focus();
+		$("#createEditProject-dialog").dialog("option", "width", createEditProjectDialogWidthWide);
+	}
 
 	// Only allow the dialog to be closed if there's a project loaded
 	if (currProject) {
-		$("#createProject-cancel").show();
+		$("#createEditProject-cancel").show();
 	} else { 
-		$("#createProject-cancel").hide();
+		$("#createEditProject-cancel").hide();
 	}
 }
 
-function hideCreateProjectDialog() {
-	$("#createProject-dialog").dialog("close");
+function showEditProjectDialog() {
+
+	if (!currProject) {
+		return;
+	}
+
+	resetCreateEditProjectDialog("Edit Project", "Save", editProject);
+	$("#createEditProject-dialog").dialog("option", "height", createEditProjectDialogHeightTall);
+	$(".createEditProject-extra").show();
+
+	// Populate the dialog with the current project's values
+	$("#createEditProject-name").val(currProject.name);
+	$("#createEditProject-desc").val(currProject.desc);
+	$("#createEditProject-xaxis").val(currProject.x_axis_label);
+	$("#createEditProject-yaxis").val(currProject.y_axis_label);
+
+}
+
+function resetCreateEditProjectDialog(title, submitText, submitHandler) {
+
+	// Smoothly scroll to the top of the page
+	$("html, body").animate({scrollTop: 0});
+	$("#recentProjects").hide();
+
+	$("#createEditProject-dialog").dialog("option", "width", createEditProjectDialogWidth);
+	$("#createEditProject-dialog").dialog("option", "height", createEditProjectDialogHeight);
+
+	// Reset the dialog's form fields
+	$("#createEditProject-title").text(title);
+	$("#createEditProject-name").val("");
+	$("#createEditProject-desc").val("");
+	$("#createEditProject-name").prop("disabled", false);
+	$("#createEditProject-desc").prop("disabled", false);
+
+	$(".createEditProject-extra").hide();
+	$("#createEditProject-xaxis").val("");
+	$("#createEditProject-yaxis").val("");
+	$("#createEditProject-xaxis").prop("disabled", false);
+	$("#createEditProject-yaxis").prop("disabled", false);	
+
+	$("#createEditProject-dialog").dialog("open");	
+	$("#createEditProject-dialog .loading").hide();
+
+	$("#createEditProject-submit").off("click");
+	$("#createEditProject-submit").click(submitHandler);
+	$("#createEditProject-submit").button( "option", "label", submitText);
+	$("#createEditProject-submit").show();
+	$("#createEditProject-cancel").show();
+
+	$("#createEditProject-name").focus();
+}
+
+function hideCreateEditProjectDialog() {
+	$("#createEditProject-dialog").dialog("close");
+}
+
+function disableCreateEditProjectForm() {
+	$("#createEditProject-name").prop('disabled', true);
+	$("#createEditProject-desc").prop('disabled', true);
+	$("#createEditProject-xaxis").prop('disabled', true);
+	$("#createEditProject-yaxis").prop('disabled', true);		
+	$("#createEditProject-submit").hide();
+	$("#createEditProject-cancel").hide();
+	$("#createEditProject-dialog .loading").show();
 }
 
 function setupCreateItemDialog() {
@@ -795,7 +865,7 @@ $(document).ready(function() {
 	$("#deleteItemBtn").click(deleteCurrentItem);
 
 	// Setup dialogs
-	setupCreateProjectDialog();
+	setupCreateEditProjectDialog();
 	setupCreateItemDialog();
 
 	// Load any provided project, or show createProject

@@ -207,33 +207,33 @@ img {border: none;}
 	padding: .1em .5em .1em .5em;
 }
 
-/* create-dialog class covers both createProject and createItem dialogs */
+/* create-dialog class covers both createEditProject and createEditItem dialogs */
 
-.create-dialog table {
+.createEdit-dialog table {
 	margin: 12px 0px 12px 0px;
 }
 
-.create-dialog table td {
+.createEdit-dialog table td {
 	vertical-align: top;
 }
 
-.create-dialog input {
+.createEdit-dialog input {
 	width: 325px;	
 	margin-bottom: 12px;
 	font-size: 1.3em;
 }
 
-.create-dialog textarea {
+.createEdit-dialog textarea {
 	width: 325px;
 	height: 5em;
 	resize: none;
 }
 
-.create-dialog .buttonBar {
+.createEdit-dialog .buttonBar {
 	float: right;
 }
 
-.create-dialog .buttonBar button,img{
+.createEdit-dialog .buttonBar button,img{
 	margin-left: 10px;
 }
 
