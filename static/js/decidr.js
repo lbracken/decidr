@@ -299,6 +299,29 @@ function hideInfoDock() {
 	$("#infoDock").hide();
 }
 
+function onItemTitleChange() {
+
+	if (!currSelectedItem) {
+		return;
+	}
+
+	// Update current item, rerender grid, then update on server
+	currSelectedItem.name = $("#itemTitle").val();
+	renderGrid();
+	saveProject();
+}
+
+function onItemDescChange() {
+
+	if (!currSelectedItem) {
+		return;
+	}
+
+	// Update current item, then update on server
+	currSelectedItem.desc = $("#itemDesc").val();
+	saveProject();
+}
+
 function onItemColorChange() {
 
 	if (!currSelectedItem) {
@@ -427,7 +450,7 @@ function selectItem(item) {
 
 	hideGridItemHistory();
 
-	$("#itemTitle").text(item.name);
+	$("#itemTitle").val(item.name);
 	$("#itemDesc").val(item.desc);
 	$("#itemColorSelector").val(item.color);
 
@@ -861,6 +884,8 @@ $(document).ready(function() {
 
 	// Setup infodock controls
 	$("#infoDockToggleBtn").click(toggleInfoDock);
+	$("#itemTitle").change(onItemTitleChange);
+	$("#itemDesc").change(onItemDescChange);
 	$("#itemColorSelector").change(onItemColorChange);
 	$("#deleteItemBtn").click(deleteCurrentItem);
 

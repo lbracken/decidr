@@ -190,11 +190,14 @@ img {border: none;}
 
 #itemInfo .title {
 	font-size: 1.5em;
+	width: 95%;
+	padding: 4px;
 }
 
 #itemInfo textarea {
 	width: 95%;
-	height: 10em;	
+	height: 10em;
+	padding: 4px;
 	margin-top: .75em;
 	resize: vertical;
 }
