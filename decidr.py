@@ -54,7 +54,7 @@ def get_project():
         now = str(datetime.now())
         found = True if project else False
         print ">> %s\t%s\tget_project()\t[%s]\tFound:%r" % \
-                (request.remote_addr, now, project["_id"], found)          
+                (request.remote_addr, now, id, found)          
     
     else:
         response_body["error"] = True
