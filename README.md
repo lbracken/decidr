@@ -1,23 +1,34 @@
-decidr
-======
+# decidr
 
-Plot and prioritize tasks.  When you have a number of items to work on for a project, decidr allows you to plot them (typically by level of effort and value to project), which can provide clarity about which items to work on first.
+decidr is a project to help organize and prioritize tasks. Tasks are added to a grid and relatively positioned based upon two dimensions of importance -- level of effort and value to project. This can provide clarity about the tasks at hand and order to knock them out.
 
 A running instance is hosted at http://levibracken.com/decidr.
-
-
+  
 ##Running the application
 
-decidr is built as a Flask application. To run:
+decidr uses MongoDB for persistnce. By default it tries to connect to a mongo instance at `localhost:27017`. To use a different host:port, update `settings.cfg`.
 
-    $ python -m decidr
+To run locally...
 
-The WebUI (and web service) is then available at http://localhost:5000.
+    $ python decidr.py
 
-Persistence is handled by mongoDB.  Be sure to update settings.cfg with your mongoDB configuration.  Why use mongoDB for such a simple application?  No good reason other than mongoDB is already installed and used on the server where decidr is live hosted.
+You can then access the WebUI at http://localhost:5000.
 
-###Running unit tests
+To run tests...
 
-To run the unit tests:
+	$ python decidr_tests.py
 
-	$ python -m decidr_tests
+For tests to pass, you must first load some test data into the DB (see `decidr_tests.py` header).
+
+## Docker
+
+This project can be deployed as a Docker container. The decidr image does not include MongoDB by default, it must be linked to another container with MongoDB.  When linking to another container there's no need to update `settings.cfg`.
+
+To build a decidr image...
+
+	$ docker build -t="decidr" .
+
+To start a decidr container (and the official MongoDB container)...
+
+	$ docker run -d --name mongo mongo
+	$ docker run -d -P --name decidr --link mongo:db decidr
