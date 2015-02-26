@@ -19,9 +19,9 @@
 
     <div id="prjHeader">
       <div id="prjInfo">
-        <div id="prjIcon"></div>
-        <span id="prjTitle" class="title"></span><br/>
-        <span id="prjDesc" class="desc"></span>
+        
+        <div id="prjTitle" class="title"></div><br/>
+        <div id="prjDesc" class="desc"></div>
       </div>
       
       <div id="prjCtrlBar" style="display: none;">
@@ -49,24 +49,22 @@
           <input type="text" id="itemTitle" class="title"/><br/>
           <textarea id="itemDesc"></textarea><br/>
 
-          Color:
+          <span class="infoDockLabel">Color:</span>
           <select id="itemColorSelector" size="1">
-            <option value="#D15600" selected="selected">Red</option>
-            <option value="#93C763">Green</option>
-            <option value="#5989A0">Blue</option>
+            <option value="#F44336" selected="selected">Red</option>
+            <option value="#4CAF50">Green</option>
+            <option value="#2196F3">Blue</option>
+            <option value="#FF9800">Oranage</option>
             <option value="#000000">Black</option>
           </select>
 
-
-          <br/><br/><hr/><br/>
-          &nbsp;Coordinates: <span id="itemXPos">0</span>, <span id="itemYPos">0</span><br/>
-          &nbsp;Moves: <span id="itemRevs">0</span><br/>
+          <br/><br/>
           <button id="deleteItemBtn">Delete Item</button>
           <br/><br/>
 
         </div>
       </div>
-      <a href="javascript:void(0)" id="infoDockToggleBtn" class="ui-state-default ui-corner-all"></a>
+      <a href="javascript:void(0)" id="infoDockToggleBtn"></a>
     </div>
 
     <!-- DialogBoxes -->
@@ -147,8 +145,8 @@
 
     <!-- Add Raphael icons to page -->
     <script>
-      var prjIcon = Raphael("prjIcon",36,36);
-      prjIcon.path("M17.078,22.004l-1.758-4.129l-2.007,4.752l-7.519-3.289l0.174,3.905l9.437,4.374l10.909-5.365l-0.149-4.989L17.078,22.004zM29.454,6.619L18.521,3.383l-3.006,2.671l-3.091-2.359L1.546,8.199l3.795,3.048l-3.433,5.302l10.879,4.757l2.53-5.998l2.257,5.308l11.393-5.942l-3.105-4.709L29.454,6.619zM15.277,14.579l-9.059-3.83l9.275-4.101l9.608,3.255L15.277,14.579z").attr({fill: "#293134", stroke: "none"});
+      var decidrLogo = Raphael("decidrLogo",36,36);
+      decidrLogo.path("M17.078,22.004l-1.758-4.129l-2.007,4.752l-7.519-3.289l0.174,3.905l9.437,4.374l10.909-5.365l-0.149-4.989L17.078,22.004zM29.454,6.619L18.521,3.383l-3.006,2.671l-3.091-2.359L1.546,8.199l3.795,3.048l-3.433,5.302l10.879,4.757l2.53-5.998l2.257,5.308l11.393-5.942l-3.105-4.709L29.454,6.619zM15.277,14.579l-9.059-3.83l9.275-4.101l9.608,3.255L15.277,14.579z").attr({fill: "#293134", stroke: "none"});
       </script>    
 
 {% endblock %}

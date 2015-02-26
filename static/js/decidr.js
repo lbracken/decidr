@@ -8,13 +8,13 @@ var gridMarginBottom = 25;
 var gridMarginLeft = 25;
 var gridMarginRight = 5;
 var gridAxisTextStyle = {'text-anchor':'middle', 'font-size':12, 'font-weight':'bold'};
-var gridAxisStyle = {'stroke':'#111'};
-var gridMinorAxisStyle = {'stroke':'#DDD'};
+var gridAxisStyle = {'stroke':'#9E9E9E'};
+var gridMinorAxisStyle = {'stroke':'#EEEEEE'};
 
 var gridItemTextOffsetY = 15;
 var gridItemStyle = {'cursor':'pointer'};
 var gridItemTextStyle = {'text-anchor':'middle', 'font-size':12};
-var gridItemDefaultColor = "#D15600";
+var gridItemDefaultColor = "#F44336";
 var gridItemMoveTolerance = 2;
 
 var gridItemHistoryPointStyle = {'fill':'#999','stroke':'#999'};
@@ -444,7 +444,7 @@ function selectItem(item) {
 			itemPoint.glowing.remove();
 		}
 		if (item === itemPoint.item) {
-			itemPoint.glowing = itemPoint.glow({color:'#FBEC5D',width:60});
+			itemPoint.glowing = itemPoint.glow({color:'#FFEB3B',width:60});
 		}
 	});
 

@@ -2,59 +2,52 @@
    :license: MIT, see LICENSE for more details.
 */
 * {
-  margin: 0px;
+  margin: 0;
 }
 
 html, body {
-  height: 100%;
   padding: 0px;
-  margin: 0px;
+  height: 100%;
   background-color: #f5f5fb;
-}
-
-html {
-  font-family: Tahoma, Trebuchet MS, Helvetica, Arial;
-  font-size: .8em;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.95em;
+  font-weight: 400;
 }
 
 body {}
 
 h1 {
   padding-bottom: .25em;
-  font-size: 1.7em;
+  font-size: 1.25em;
 }
 
-A:link    {color: #76A0C9; text-decoration: none;}
-A:visited {color: #76A0C9; text-decoration: none;}
-A:hover   {color: #76A0C9; text-decoration: underline;}
-A:active  {color: #76A0C9; outline: none;}
+A:link    {color: #000; text-decoration: none;}
+A:visited {color: #000; text-decoration: none;}
+A:hover   {color: #000; text-decoration: underline;}
+A:active  {color: #000; outline: none;}
 A:focus   {-moz-outline-style: none;}
 
 img {border: none;}
 .clearPanel {clear: both;}
 
-.title {
-	font-weight: bold;
-	color: #293134;
-}
-
-.desc {
-	font-style: italic;
-	color: #444;
+textarea {
+	font-size: 0.95em;
 }
 
 #header {
-	padding: .25em 1em .25em 1em;
+	padding: 0.5em 1em 0.5em 1em;
 	margin-bottom: 1em;
-	border-bottom: 4px solid #678c9d;
+	border-bottom: 7px solid #0288D1;
 
-	background-color: #293134;
-	color: #e8e2b7;
-	font-weight: bold;
+	background-color: #03A9F4;
+	color: #FFF;
 }
 
 #decidrLogo {
 	float: left;
+	height: 24px;
+	vertical-align: top;
+	font-size: 1.5em;
 }
 
 #topLevelCtrlBar {
@@ -62,12 +55,26 @@ img {border: none;}
 	display: inline;
 }
 
-#topLevelCtrlBar A:link, A:visited, A:hover, A:active {
-	color: #e8e2b7 !important;
+#topLevelCtrlBar A:link, 
+#topLevelCtrlBar A:visited, 
+#topLevelCtrlBar A:hover, 
+#topLevelCtrlBar A:active {
+	color: #FFF !important;
+}
+
+.title {
+	font-weight: 600;
+	color: #000;
+}
+
+.desc {
+	margin-top: 0.25em;
+	color: #727272;
 }
 
 #prjHeader hr {
-	margin: 0em 1em 0em 1em;
+	margin: 0.5em 1em 0em 1em;
+	border: 1px dashed #9E9E9E;
 }
 
 #prjInfo {
@@ -75,14 +82,9 @@ img {border: none;}
 	padding-left: 1em;
 }
 
-#prjIcon {
-	float: left;
-	margin-right: .5em;
-}
-
 #prjInfo .title {
 	float: left;
-	font-size: 2em;
+	font-size: 1.75em;
 }
 
 #prjInfo .desc {
@@ -98,17 +100,10 @@ img {border: none;}
 	float: right;
 }
 
-#prjCtrlBar a {
-	padding: .3em;
-	font-size: 1.2em;
-}
-
 #updateIndicatorContainer {
 	height: 1.25em;
-	margin: 0em 1em .5em 0em;
-	font-size: 1em;
-	font-style: italic;
-	color: #444;
+	margin: 0.25em 1em 0.5em 0em;
+	color: #727272;
 }
 
 #updateInProgress {
@@ -121,51 +116,27 @@ img {border: none;}
 
 #updateFailure {
 	float: right;
-	color: #FF0000;
-	font-weight: bold;
-}
-
-#updateIndicatorContainer {
-	height: 1.25em;
-	margin: 0em 1em .5em 0em;
-	font-size: 1em;
-	font-style: italic;
-	color: #444;
-}
-
-#updateSuccess {
-	float: right;
-}
-
-#updateFailure {
-	float: right;
-	color: #FF0000;
-	font-weight: bold;
-}
-
-#updateInProgress {
-	float: right;
+	color: #F44336;
+	font-weight: 600;
 }
 
 #fatalErrorMessage {
 	margin: 0px 0px 1em 2em;
 	font-size: 1.5em;
-	font-weight: bold;
-	color: #FF0000;
+	color: #F44336;
+	font-weight: 600;
 }
 
 #content {
 	position: relative;
 	height: 550px;
-	margin: 0em 1em 1em 1em;
+	margin: 0.5em 1em 1em 1em;
 }
 
 #gridContainer {	
 	display: none;
 	height: 100%;
-	border: 1px solid #777;
-	border-radius: 0px 0px 7px 0px;
-	box-shadow: 4px 4px 4px #CCC;	
+	box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);	
 	background-color: #FFF;
 }
 
@@ -178,18 +149,17 @@ img {border: none;}
 	right: 0;
 	width: 300px;
 	height: 100%;
-	border: 1px solid #777;
-	border-radius: 0px 0px 7px 0px;
-	box-shadow: 4px 4px 4px #CCC;
-	background-color: #CCC;
+	box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);	
+	background-color: #03A9F4;
+	color: #FFF;
 }
 
 #itemInfo {
-	margin: .5em;
+	margin: 0.75em;
 }
 
 #itemInfo .title {
-	font-size: 1.5em;
+	font-size: 1.0em;
 	width: 95%;
 	padding: 4px;
 }
@@ -198,7 +168,7 @@ img {border: none;}
 	width: 95%;
 	height: 10em;
 	padding: 4px;
-	margin-top: .75em;
+	margin: 1.5em 0em 1.550em 0em;
 	resize: vertical;
 }
 
@@ -207,7 +177,7 @@ img {border: none;}
 	position: absolute;
 	right: 5px; 
 	bottom: 5px;
-	padding: .1em .5em .1em .5em;
+	padding: 0.25em 0.5em 0.25em .5em;
 }
 
 /* create-dialog class covers both createEditProject and createEditItem dialogs */
@@ -255,9 +225,14 @@ img {border: none;}
 	width: 600px;
 	margin: auto;
 	text-align: center;
-	color: #666 !important;
+	color: #727272; !important;
+	font-size: 0.8em;
 }
 
-#footer A:link, A:visited, A:hover, A:active {
-	color: #666 !important;
+#footer A:link, 
+#footer A:visited, 
+#footer A:hover, 
+#footer A:active {
+	color: #727272 !important;
 }
+
